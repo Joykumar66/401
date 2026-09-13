@@ -1,0 +1,1184 @@
+আপনার দেওয়া `.R` files-এ numerical output সংযুক্ত নেই। তাই নিচে এমন **exam-ready interpretation** দিচ্ছি, যেখানে প্রয়োজনীয় জায়গায় নিজের output-এর number বসাবেন।
+
+# Assignment: PCA Interpretation
+
+আপনার screenshot অনুযায়ী:
+
+| Component | Variance explained | Cumulative variance |
+| --------- | -----------------: | ------------------: |
+| PC1       |             22.16% |              22.16% |
+| PC2       |             18.64% |              40.80% |
+| PC3       |             15.49% |              56.29% |
+| PC4       |             12.44% |              68.73% |
+| PC5       |             11.87% |              80.60% |
+
+পরীক্ষায় লিখবেন:
+
+> Principal Component Analysis was performed on 16 standardized variables. PC1 explained 22.16% of the total variation, while PC2 explained 18.64%. The first two principal components jointly explained 40.80% of the total variation. The first five components explained approximately 80.60% of the total variation. Therefore, the original 16 variables can reasonably be represented by the first five principal components with only about 19.40% loss of information.
+
+Loading দেখে component-এর নাম দেবেন:
+
+> Variables having large absolute loadings were considered important for interpreting each component. Based on the highly loaded variables, the components may be interpreted as economic, social, health, educational and environmental dimensions.
+
+Variable contribution plot-এর interpretation:
+
+> Variables represented by long arrows and warmer colours made relatively large contributions to the first two principal components. Variables pointing in similar directions were positively related, while variables pointing in opposite directions were negatively related.
+
+---
+
+# Assignment: Factor Analysis Interpretation
+
+প্রথমে KMO output দেখবেন।
+
+যদি KMO `0.50`-এর বেশি হয়:
+
+> The overall KMO value was ____. Since the value was greater than 0.50, the sampling adequacy was acceptable and the dataset was suitable for factor analysis.
+
+Bartlett test-এর p-value যদি `0.05`-এর কম হয়:
+
+> Bartlett’s test of sphericity was statistically significant (\(\chi^2=____,\ p<0.05\)). Therefore, the null hypothesis that the correlation matrix is an identity matrix was rejected. This indicates that sufficient correlations existed among the variables for factor analysis.
+
+আপনার data পাঁচটি latent factor দিয়ে তৈরি। তাই লিখবেন:
+
+> Based on the scree plot, eigenvalue criterion and underlying structure of the data, five factors were retained. The first five factors/components explained approximately 80.60% of the total variation.
+
+Varimax loading table দেখে interpretation:
+
+> Maximum Likelihood Factor Analysis with varimax rotation produced a comparatively clear factor structure. Variables with absolute loadings of 0.50 or above were considered important. Based on the groups of highly loaded variables, the factors were interpreted as Economic, Social, Health, Education and Environmental factors.
+
+সম্ভাব্য factor naming:
+
+* GDP, unemployment, inflation, income → Economic factor
+* Crime, population density, social support → Social factor
+* Life expectancy, infant mortality, health expenditure → Health factor
+* Literacy, school enrollment, teacher–student ratio → Education factor
+* Air quality, green space, water quality → Environmental factor
+
+Factor number ভিন্ন হতে পারে। যেমন Economic factor `ML1` না হয়ে `ML3` হলেও সমস্যা নেই।
+
+---
+
+# Assignment: CCA Interpretation
+
+Canonical correlations-এর output দেখবেন:
+
+```r
+cca_result$cor
+```
+
+তারপর লিখবেন:
+
+> Canonical Correlation Analysis was conducted to examine the multivariate relationship between the economic-social variables in Set X and the health-education-environmental variables in Set Y. A total of six canonical correlations were obtained because the smaller set contained six variables.
+
+First canonical correlation যদি \(r_1\) হয়:
+
+$$
+\text{Shared variance}=r_1^2\times100
+$$
+
+উদাহরণ: \(r_1=0.80\) হলে:
+
+$$
+0.80^2\times100=64\%
+$$
+
+Interpretation:
+
+> The first canonical correlation was ____, indicating a strong/moderate relationship between the first pair of canonical variates. The squared canonical correlation showed that the first pair shared approximately ____% variance.
+
+Wilks test:
+
+> Wilks’ Lambda test showed that the first ____ canonical functions were statistically significant at the 5% level. Therefore, the null hypothesis of no relationship between the two variable sets was rejected for these functions.
+
+Coefficients:
+
+> Variables having large absolute canonical coefficients contributed more strongly to the respective canonical variates. In Set X, ____ and ____ had the largest contributions, whereas ____ and ____ were the dominant variables in Set Y.
+
+খেয়াল রাখবেন:
+
+```r
+cca_result$xcoef
+cca_result$ycoef
+```
+
+এগুলো **canonical coefficients**, loadings নয়।
+
+---
+
+# Assignment: K-means Interpretation
+
+এখানে আগে missing code ঠিক করবেন:
+
+```r
+K.value <- optimal_k_sil
+```
+
+তারপর output দেখে লিখবেন:
+
+> The elbow and silhouette methods were used to determine the appropriate number of clusters. The silhouette method suggested \(K=____\) as the optimal number because it produced the highest average silhouette width.
+
+Cluster sizes:
+
+> K-means clustering divided the 300 observations into ____ clusters. Cluster 1 contained ____ observations, Cluster 2 contained ____ observations, and Cluster 3 contained ____ observations.
+
+Standardized cluster center-এর নিয়ম:
+
+* Positive value → overall mean-এর উপরে
+* Negative value → overall mean-এর নিচে
+* Zero-এর কাছাকাছি → overall mean-এর কাছাকাছি
+
+Interpretation template:
+
+> Cluster 1 showed above-average values for ____ and below-average values for ____. Therefore, it may be described as a relatively ____ group. Cluster 2 was characterized by ____, while Cluster 3 showed ____.
+
+PCA cluster plot:
+
+> The clusters were visualized using the first two principal components. Clear separation and limited overlap would indicate a good cluster solution. However, substantial overlap among the ellipses would suggest a weak natural clustering structure.
+
+---
+
+# Problem 04: ICA of Artificial Tones
+
+## Original tones
+
+> Two noisy sinusoidal signals were generated as independent source tones. The first tone had a different frequency and amplitude from the second tone. Random noise was added to make the signals more realistic.
+
+## Source matrix
+
+```r
+S <- matrix(c(s1, s2), 1000, 2)
+```
+
+> The two original signals were combined into the source matrix \(S\), where each column represented one independent tone.
+
+## Mixing
+
+```r
+X <- S %*% A
+```
+
+> The source signals were linearly mixed using the mixing matrix \(A\). Therefore, each column of \(X\) contained a combination of both original tones rather than a single independent source.
+
+Mathematically:
+
+$$
+X=SA
+$$
+
+## Scatter plots
+
+> The scatter plot of \(S\) represented the joint distribution of the original independent sources. After linear mixing, the scatter plot of \(X\) became rotated and stretched, showing that the observed mixtures were linear combinations of the original signals.
+
+## FastICA result
+
+> FastICA was applied to the observed mixture matrix \(X\) to estimate the original independent components. The estimated signals followed patterns similar to the original sinusoidal tones. Therefore, ICA successfully separated the mixed signals into their underlying independent sources.
+
+## খুব গুরুত্বপূর্ণ ICA rule
+
+Estimated tone-এর:
+
+* Order বদলাতে পারে
+* Sign উল্টো হতে পারে
+* Amplitude/scale বদলাতে পারে
+
+তবুও result correct হতে পারে।
+
+পরীক্ষায় লিখবেন:
+
+> The estimated components may appear in a different order, scale or sign because ICA suffers from permutation and scaling ambiguities. These differences do not imply an incorrect separation.
+
+---
+
+# Problem 05: ICA of Audio Signals
+
+## Audio reading
+
+> Two artificially mixed audio files were imported. Their sampling rates were recorded, and only the left audio channels were retained for analysis.
+
+## Equal length করা
+
+> Since ICA requires observations of equal length, both audio signals were truncated to the length of the shorter signal and combined into a two-column matrix.
+
+## FastICA
+
+```r
+separated <- fastICA(signal_comb, n.comp = 2)
+```
+
+> FastICA extracted two statistically independent components from the two observed audio mixtures. The resulting components represented estimates of the original source sounds.
+
+## Normalization
+
+```r
+separated_1 <- separated$S[,1] /
+               max(abs(separated$S[,1]))
+```
+
+এখানে আপনার code একটু সংশোধন করা ভালো। Original code-এ শুধু `max()` আছে। Negative amplitude বড় হলে সমস্যা হতে পারে। তাই `max(abs())` বেশি সঠিক।
+
+Interpretation:
+
+> The separated signals were normalized so that their amplitudes remained within a suitable range for playback and storage.
+
+## Final conclusion
+
+> After listening to the separated audio files, the two underlying sounds could be distinguished more clearly than in the original mixed recordings. Thus, ICA demonstrated its ability to solve the blind source separation problem.
+
+---
+
+# Problem 06: Psychological–Academic CCA
+
+এখানে:
+
+* `X` = তিনটি psychological variables
+* `Y` = চারটি academic variables
+
+সুতরাং সর্বোচ্চ canonical functions:
+
+$$
+\min(3,4)=3
+$$
+
+## Correlation matrices
+
+> The within-set correlation matrices showed how strongly variables within the psychological and academic groups were related. The between-set correlation matrix provided preliminary evidence regarding the relationships between psychological characteristics and academic performance.
+
+## Canonical correlations
+
+> Three canonical correlations were obtained because the smaller psychological set contained three variables. The first canonical correlation was the largest, meaning that the first pair of canonical variates represented the strongest relationship between psychological characteristics and academic performance.
+
+## Four significance tests
+
+Code-এ আছে:
+
+* Wilks
+* Hotelling
+* Pillai
+* Roy
+
+Interpretation:
+
+> Wilks’ Lambda, Hotelling’s Trace, Pillai’s Trace and Roy’s Largest Root were used to test the statistical significance of the canonical functions. A p-value below 0.05 indicated that the corresponding canonical relationship was statistically significant.
+
+## Canonical coefficients
+
+> The raw canonical coefficients represented the weights used to construct the psychological and academic canonical variates. Larger absolute coefficients indicated greater contribution to the construction of the corresponding canonical variate.
+
+## Canonical loadings
+
+```r
+loadings.X <- cor(X, xscores)
+loadings.Y <- cor(Y, yscores)
+```
+
+> Canonical loadings measured the correlations between the original variables and their own canonical variates. Variables with high absolute loadings were considered the most important variables for interpreting each canonical function.
+
+## Cross-loadings
+
+> Cross-loadings measured the correlations between variables in one set and the canonical variates of the opposite set. They showed how strongly individual psychological variables were related to the academic canonical variates and vice versa.
+
+## Scatter plots
+
+> The first canonical-pair plot showed the strongest relationship between the psychological and academic canonical scores. A clear linear pattern around the regression line indicated a strong canonical relationship. The second pair was expected to show a weaker relationship because canonical correlations decrease successively.
+
+## Final Problem 06 conclusion
+
+> Overall, CCA revealed whether a significant multivariate relationship existed between psychological characteristics and academic performance. The first canonical function generally provided the most meaningful relationship, while subsequent functions explained progressively smaller remaining associations.
+
+Exact interpretation করার জন্য `KMO`, Bartlett test, FA loading table, CCA correlations/p-values এবং cluster centers-এর Console output প্রয়োজন। শুধু `.R` code-এর মধ্যে numerical results নেই।
+
+
+নিচে আপনার পুরো practical-এর জন্য **interpretation + সম্ভাব্য viva questions + code-error checklist** দিলাম। পরীক্ষার আগে এটিই revision sheet হিসেবে পড়তে পারবেন।
+
+# ১. PCA Interpretation
+
+আপনার screenshot অনুযায়ী:
+
+| PC  | Variance explained | Cumulative variance |
+| --- | -----------------: | ------------------: |
+| PC1 |             22.16% |              22.16% |
+| PC2 |             18.64% |              40.80% |
+| PC3 |             15.49% |              56.29% |
+| PC4 |             12.44% |              68.73% |
+| PC5 |             11.87% |              80.60% |
+
+### পরীক্ষায় লেখার মতো interpretation
+
+> Principal Component Analysis was performed on 16 standardized variables. PC1 explained 22.16% of the total variance, while PC2 explained 18.64%. Together, the first two components explained 40.80% of the total variance. The first five principal components explained approximately 80.60% of the total variation. Therefore, the original 16 variables can reasonably be represented by the first five principal components with only about 19.40% loss of information.
+
+### Loading interpretation
+
+> Variables with large absolute loadings were considered important for interpreting a component. Based on the highly loaded variables, the retained components may be interpreted as economic, social, health, education and environmental dimensions.
+
+### Scree plot interpretation
+
+> The scree plot showed a clear reduction in eigenvalues after approximately the fifth component. Therefore, retaining five components appears reasonable.
+
+### Variable-contribution plot
+
+> Long arrows and warmer colours represent variables that contribute strongly to the first two dimensions. Variables pointing in the same direction are positively related, whereas variables pointing in opposite directions are negatively related.
+
+---
+
+# ২. Factor Analysis Interpretation
+
+## KMO interpretation
+
+KMO output যদি `0.50`-এর বেশি হয়:
+
+> The overall KMO value was ____. Since the value was greater than 0.50, the sampling adequacy was acceptable and the data were suitable for factor analysis.
+
+|        KMO | Interpretation  |
+| ---------: | --------------- |
+|      0.90+ | Excellent       |
+|  0.80–0.89 | Very good       |
+|  0.70–0.79 | Good            |
+|  0.60–0.69 | Acceptable      |
+|  0.50–0.59 | Poor but usable |
+| Below 0.50 | Unacceptable    |
+
+## Bartlett’s test interpretation
+
+যদি \(p<0.05\):
+
+> Bartlett’s test of sphericity was statistically significant (\(\chi^2=____,\ p<0.05\)). Therefore, the null hypothesis that the correlation matrix is an identity matrix was rejected. This confirms that sufficient correlations exist among the variables and factor analysis is appropriate.
+
+মনে রাখবেন:
+
+$$
+KMO>0.50,\quad Bartlett\ p<0.05
+$$
+
+হলে FA করা যাবে।
+
+## Number of factors
+
+> Based on the scree plot, eigenvalue criterion and theoretical structure, five factors were retained. Together, the first five dimensions explained approximately 80.60% of the total variation.
+
+## Rotated factor interpretation
+
+> Maximum Likelihood Factor Analysis with varimax rotation produced a clearer factor structure. Variables with absolute loadings of 0.50 or above were treated as important. Based on the highly loaded variables, the factors were identified as Economic, Social, Health, Education and Environmental factors.
+
+সম্ভাব্য নাম:
+
+| যেসব variable-এর loading বেশি                         | Factor-এর নাম |
+| ----------------------------------------------------- | ------------- |
+| GDP, income, unemployment, inflation                  | Economic      |
+| Crime, population density, social support             | Social        |
+| Life expectancy, infant mortality, health expenditure | Health        |
+| Literacy, enrollment, teacher–student ratio           | Education     |
+| Air quality, green space, water quality               | Environmental |
+
+Factor-এর serial number দেখে নয়, loading দেখে নাম দেবেন।
+
+## Communality interpretation
+
+যদি কোনো variable-এর:
+
+```text
+h2 = 0.75
+```
+
+তাহলে:
+
+> The retained factors explained 75% of the variance of the variable, while the remaining 25% was unique variance.
+
+$$
+u^2=1-h^2
+$$
+
+---
+
+# ৩. CCA Interpretation
+
+এখানে:
+
+* Set X-এ 6টি variable
+* Set Y-তে 8টি variable
+
+তাই canonical function হবে:
+
+$$
+\min(6,8)=6
+$$
+
+### পরীক্ষায় লেখার interpretation
+
+> Canonical Correlation Analysis was conducted to examine the multivariate relationship between the economic-social variables in Set X and the health-education-environmental variables in Set Y. Six canonical correlations were obtained because the smaller variable set contained six variables.
+
+First canonical correlation যদি \(r_1\) হয়:
+
+$$
+\text{Shared variance}=r_1^2\times100
+$$
+
+উদাহরণ: \(r_1=0.80\)
+
+$$
+0.80^2\times100=64\%
+$$
+
+লিখবেন:
+
+> The first canonical correlation was ____, indicating a strong/moderate relationship between the first pair of canonical variates. Its squared value indicated approximately ____% shared variance.
+
+## Wilks’ Lambda interpretation
+
+যদি p-value `< 0.05`:
+
+> Wilks’ Lambda test was statistically significant. Therefore, the null hypothesis of no relationship between the two variable sets was rejected.
+
+যদি p-value `> 0.05`:
+
+> The corresponding canonical function was not statistically significant and was not considered meaningful for interpretation.
+
+## Canonical coefficients
+
+> Variables with large absolute canonical coefficients contributed more strongly to the construction of the corresponding canonical variate.
+
+গুরুত্বপূর্ণ:
+
+```r
+cca_result$xcoef
+cca_result$ycoef
+```
+
+এগুলো **canonical coefficients**, loadings নয়।
+
+---
+
+# ৪. K-means Interpretation
+
+Missing code ঠিক করবেন:
+
+```r
+K.value <- optimal_k_sil
+```
+
+## Optimal K
+
+> The elbow and silhouette methods were used to identify the appropriate number of clusters. The silhouette method selected \(K=____\), as this value produced the highest average silhouette width.
+
+## Cluster sizes
+
+> K-means clustering divided the 300 observations into ____ clusters. Cluster 1 contained ____ observations, Cluster 2 contained ____ observations, and the remaining observations belonged to the other clusters.
+
+## Cluster centers
+
+Standardized center interpretation:
+
+* Positive → overall mean-এর উপরে
+* Negative → overall mean-এর নিচে
+* Zero-এর কাছাকাছি → overall mean-এর কাছাকাছি
+
+উদাহরণ:
+
+> Cluster 1 showed above-average GDP growth, income, literacy and life expectancy, together with below-average unemployment and infant mortality. Therefore, it may be described as a relatively developed socioeconomic cluster.
+
+## PCA cluster plot
+
+> The clusters were visualized using the first two principal components. Limited overlap among the clusters would indicate good separation. Considerable overlap among the points and ellipses would indicate a weak natural cluster structure.
+
+এই data continuous latent factors থেকে তৈরি, আগে থেকে আলাদা group তৈরি করা হয়নি। তাই low silhouette বা overlap হওয়া সম্ভব।
+
+---
+
+# ৫. Problem 04: Artificial Tones-এর ICA Interpretation
+
+> Two noisy sinusoidal tones were generated as independent source signals and combined into the source matrix \(S\). A mixing matrix \(A\) was then used to create the observed mixtures according to \(X=SA\). Therefore, each observed signal contained information from both original tones.
+
+Scatter plots:
+
+> The source scatter plot represented the joint distribution of the original independent components. After mixing, the distribution became rotated and stretched, indicating that the observed signals were linear combinations of the original sources.
+
+FastICA:
+
+> FastICA was applied to the observed mixtures to recover the underlying independent components. The estimated signals showed patterns similar to the original tones, indicating successful source separation.
+
+ICA result-এ তিনটি বিষয় হতে পারে:
+
+* Estimated signal-এর order বদলাতে পারে
+* Sign উল্টো হতে পারে
+* Amplitude বদলাতে পারে
+
+> ICA contains permutation, sign and scaling ambiguities. Therefore, a reversed, rescaled or reordered estimated signal can still represent correct separation.
+
+---
+
+# ৬. Problem 05: Audio ICA Interpretation
+
+> Two mixed audio files were imported, and their left-channel signals were extracted. Since ICA requires signals of equal length, both signals were truncated to the length of the shorter recording and combined into a two-column matrix.
+
+> FastICA extracted two statistically independent components from the observed audio mixtures. The separated components represented estimates of the original source sounds. The signals were normalized before playback and saving to prevent excessive amplitude.
+
+সবচেয়ে ভালো normalization code:
+
+```r
+separated_1 <- separated$S[,1] /
+               max(abs(separated$S[,1]))
+
+separated_2 <- separated$S[,2] /
+               max(abs(separated$S[,2]))
+```
+
+Final conclusion:
+
+> The separated audio files were more distinguishable than the original mixed recordings. Therefore, ICA successfully demonstrated blind source separation.
+
+---
+
+# ৭. Problem 06: Psychological–Academic CCA Interpretation
+
+এখানে:
+
+* X = 3 psychological variables
+* Y = 4 academic variables
+
+Canonical functions:
+
+$$
+\min(3,4)=3
+$$
+
+> CCA was used to examine the multivariate relationship between psychological characteristics and academic performance. Three canonical functions were obtained because the smaller psychological set contained three variables.
+
+## Correlations
+
+> The within-set correlation matrices described relationships among variables belonging to the same group. The between-set correlation matrix provided an initial indication of the relationships between psychological and academic variables.
+
+## Four statistical tests
+
+* Wilks’ Lambda
+* Hotelling’s Trace
+* Pillai’s Trace
+* Roy’s Largest Root
+
+> A p-value below 0.05 indicated that the corresponding canonical function was statistically significant.
+
+## Loading
+
+> Canonical loadings represented correlations between the original variables and their own canonical variates. Variables with high absolute loadings were the most important variables for interpreting each function.
+
+## Cross-loading
+
+> Cross-loadings represented correlations between variables from one set and the canonical variates of the opposite set.
+
+## Graph
+
+> The first canonical-pair plot represented the strongest relationship. A clear linear pattern indicated a strong association, whereas widely scattered points indicated a weak association.
+
+---
+
+# সম্ভাব্য Viva Questions and Answers
+
+## General questions
+
+### 1. Multivariate analysis কী?
+
+একই সময়ে একাধিক variable নিয়ে analysis করাকে multivariate analysis বলে।
+
+### 2. Dataset-এ কয়টি observation এবং variable?
+
+300টি observation এবং 16টি observed variable।
+
+### 3. Code-এ 15 variables লেখা—এটি কি ঠিক?
+
+না। এটি comment error। Dataset-এ বাস্তবে 16টি variable আছে।
+
+### 4. Latent factor কী?
+
+যে factor সরাসরি observed নয়, কিন্তু কয়েকটি measured variable-এর সম্পর্ক থেকে বোঝা যায়।
+
+### 5. এই data-তে কয়টি latent factor?
+
+পাঁচটি:
+
+* Economic
+* Social
+* Health
+* Education
+* Environmental
+
+### 6. `set.seed()` কেন ব্যবহার করা হয়?
+
+Random data generation-এর result যেন প্রতিবার একই হয়।
+
+### 7. `U0` কী?
+
+Student ID-এর শেষ চার digit।
+
+```r
+U0 <- 4112
+set.seed(U0)
+```
+
+### 8. Standardization কেন করি?
+
+ভিন্ন units ও scales-এর variables-কে comparable করার জন্য।
+
+### 9. Standardized variable-এর mean এবং SD কত?
+
+Mean প্রায় 0 এবং standard deviation প্রায় 1।
+
+---
+
+# PCA Viva
+
+### 10. PCA-এর full form কী?
+
+Principal Component Analysis।
+
+### 11. PCA-এর উদ্দেশ্য কী?
+
+অনেক correlated variable-এর information কমসংখ্যক components-এ সংক্ষেপ করা।
+
+### 12. Principal component কী?
+
+Original variables-এর weighted linear combination।
+
+$$
+PC_1=w_1Z_1+w_2Z_2+\cdots+w_pZ_p
+$$
+
+### 13. PC1 কী করে?
+
+Maximum possible variance ব্যাখ্যা করে।
+
+### 14. PC2 কী করে?
+
+PC1-এর সঙ্গে uncorrelated থেকে remaining maximum variance ব্যাখ্যা করে।
+
+### 15. PCA-তে কয়টি PC তৈরি হয়?
+
+Original variable যতটি, PC-ও ততটি। এখানে 16টি।
+
+### 16. সব 16টি PC কেন রাখি না?
+
+Dimensionality reduction-এর উদ্দেশ্য নষ্ট হবে। প্রথম কয়েকটি PC অধিকাংশ information ধরে রাখে।
+
+### 17. Eigenvalue কী?
+
+একটি component কত variance ব্যাখ্যা করে।
+
+### 18. Eigenvector কী?
+
+Component তৈরিতে variables-এর weights বা directions দেয়।
+
+### 19. Kaiser criterion কী?
+
+Eigenvalue greater than 1 components রাখা।
+
+### 20. Scree plot কী?
+
+Component number-এর বিপরীতে eigenvalue বা variance-এর graph।
+
+### 21. Elbow point কী?
+
+যে point-এর পর eigenvalue কমার হার ধীর হয়ে যায়।
+
+### 22. PCA loading কী?
+
+Original variable এবং principal component-এর সম্পর্কের পরিমাণ।
+
+### 23. Negative loading মানে কি variable গুরুত্বহীন?
+
+না। Negative sign শুধু বিপরীত direction বোঝায়। গুরুত্ব absolute value দিয়ে বোঝা হয়।
+
+### 24. আপনার প্রথম পাঁচটি PC কত variance ব্যাখ্যা করেছে?
+
+প্রায় 80.60%।
+
+### 25. প্রথম দুই PC কত variance ব্যাখ্যা করেছে?
+
+প্রায় 40.80%।
+
+### 26. `pca_result$rotation` কী দেয়?
+
+PCA weights বা eigenvector coefficients দেয়।
+
+### 27. `pca_result$x` কী দেয়?
+
+প্রতিটি observation-এর principal component scores।
+
+### 28. PCA-তে data দুইবার standardize হয়েছে কি?
+
+হ্যাঁ। আগে `scale(data)` এবং পরে `prcomp(..., scale.=TRUE)` দেওয়া হয়েছে। দ্বিতীয় scaling redundant।
+
+ভালো code:
+
+```r
+prcomp(data, center = TRUE, scale. = TRUE)
+```
+
+---
+
+# Factor Analysis Viva
+
+### 29. Factor Analysis-এর উদ্দেশ্য কী?
+
+Observed variables-এর পেছনের latent common factors শনাক্ত করা।
+
+### 30. PCA এবং FA-এর মূল পার্থক্য কী?
+
+PCA total variance ব্যবহার করে data reduction করে; FA common variance ব্যবহার করে latent factors শনাক্ত করে।
+
+### 31. KMO test কেন করা হয়?
+
+Sampling adequacy এবং FA suitability পরীক্ষা করতে।
+
+### 32. Acceptable KMO কত?
+
+সাধারণত 0.50-এর বেশি।
+
+### 33. Bartlett’s test-এর null hypothesis কী?
+
+Correlation matrix একটি identity matrix।
+
+### 34. Bartlett p-value কত হলে FA appropriate?
+
+$$
+p<0.05
+$$
+
+### 35. Varimax কী?
+
+একটি orthogonal rotation method, যা factor loading structure পরিষ্কার করে।
+
+### 36. Varimax কি factorগুলোকে correlated রাখে?
+
+না। এটি factors-কে uncorrelated রাখে।
+
+### 37. Rotation কেন করি?
+
+Variable কোন factor-এর অন্তর্ভুক্ত তা সহজে বুঝতে।
+
+### 38. `fm="ml"` কী?
+
+Maximum Likelihood factor extraction method।
+
+### 39. Communality কী?
+
+Common factors কোনো variable-এর variance-এর কত অংশ explain করেছে।
+
+### 40. Uniqueness কী?
+
+Factors দিয়ে explain না হওয়া variance।
+
+$$
+u^2=1-h^2
+$$
+
+### 41. Cross-loading কী?
+
+একটি variable একাধিক factor-এ উল্লেখযোগ্য loading পাওয়া।
+
+### 42. Factor-এর নাম কীভাবে দেবেন?
+
+যেসব variable-এর absolute loading বেশি, তাদের common meaning দেখে।
+
+### 43. `fa()` ও `factanal()` কোথা থেকে আসে?
+
+* `fa()` → `psych`
+* `factanal()` → base R `stats`
+
+### 44. `factanal()` sufficiency test-এ কোন p-value ভালো?
+
+$$
+p>0.05
+$$
+
+অর্থাৎ selected number of factors sufficient।
+
+এটি Bartlett test-এর বিপরীত:
+
+* Bartlett → \(p<0.05\) ভালো
+* Factor sufficiency test → \(p>0.05\) ভালো
+
+---
+
+# CCA Viva
+
+### 45. CCA-এর full form কী?
+
+Canonical Correlation Analysis।
+
+### 46. CCA কেন ব্যবহার করা হয়?
+
+দুটি multivariate variable set-এর relationship পরীক্ষা করতে।
+
+### 47. Canonical variate কী?
+
+একটি variable set-এর weighted linear combination।
+
+### 48. Canonical correlation কী?
+
+X এবং Y sets-এর corresponding canonical variates-এর correlation।
+
+### 49. Canonical functions কয়টি হবে?
+
+$$
+\min(p,q)
+$$
+
+### 50. Assignment-এর CCA-তে কয়টি function?
+
+$$
+\min(6,8)=6
+$$
+
+### 51. Problem 06-এ কয়টি function?
+
+$$
+\min(3,4)=3
+$$
+
+### 52. First canonical correlation বড় কেন?
+
+প্রথম function maximum relationship বের করে। Subsequent functions remaining relationship বের করে।
+
+### 53. Squared canonical correlation কী বোঝায়?
+
+Canonical variates-এর shared variance।
+
+### 54. Wilks’ Lambda-এর range কত?
+
+0 থেকে 1।
+
+### 55. Small Wilks’ Lambda কী বোঝায়?
+
+দুই variable set-এর মধ্যে শক্তিশালী relationship।
+
+### 56. Significance কীভাবে বুঝবেন?
+
+p-value `< 0.05` হলে significant।
+
+### 57. Canonical coefficient কী?
+
+Canonical variate তৈরির weight।
+
+### 58. Canonical loading কী?
+
+Original variable এবং নিজের set-এর canonical variate-এর correlation।
+
+### 59. Cross-loading কী?
+
+Original variable এবং opposite set-এর canonical variate-এর correlation।
+
+### 60. Coefficient এবং loading কি একই?
+
+না। Coefficient দিয়ে score তৈরি হয়; loading দিয়ে interpretation করা তুলনামূলকভাবে নিরাপদ।
+
+---
+
+# K-means Viva
+
+### 61. K-means কী?
+
+একটি unsupervised clustering method, যা similar observations-কে একই cluster-এ রাখে।
+
+### 62. K কী?
+
+Cluster-এর সংখ্যা।
+
+### 63. K-means-এর উদ্দেশ্য কী?
+
+Within-cluster sum of squares কমানো।
+
+### 64. Elbow method কী?
+
+WSS graph-এর bend point দেখে optimal K নির্বাচন।
+
+### 65. Silhouette method কী?
+
+যে K-এর average silhouette সর্বোচ্চ, সেটি নির্বাচন।
+
+### 66. Silhouette-এর range কত?
+
+$$
+-1\leq s(i)\leq1
+$$
+
+### 67. Positive high silhouette কী বোঝায়?
+
+Observation নিজের cluster-এ ভালোভাবে অবস্থান করছে।
+
+### 68. Negative silhouette কী বোঝায়?
+
+Observation সম্ভবত ভুল cluster-এ assign হয়েছে।
+
+### 69. K-means-এর আগে standardization কেন জরুরি?
+
+কারণ K-means distance-based। বড় scale-এর variables যেন result নিয়ন্ত্রণ না করে।
+
+### 70. `nstart=25` কেন?
+
+25টি random initial solution পরীক্ষা করে ভালো clustering solution নির্বাচন করে।
+
+### 71. `set.seed()` কেন?
+
+Reproducible cluster solution পাওয়ার জন্য।
+
+### 72. Cluster center কী?
+
+একটি cluster-এর variables-এর mean vector।
+
+### 73. Standardized center `+0.8` মানে কী?
+
+Overall mean-এর 0.8 standard deviation উপরে।
+
+### 74. Standardized center `−0.5` মানে কী?
+
+Overall mean-এর 0.5 standard deviation নিচে।
+
+### 75. Cluster plot-এ overlap কী বোঝায়?
+
+Clusters পুরোপুরি distinct নয়।
+
+### 76. K-means supervised না unsupervised?
+
+Unsupervised।
+
+### 77. K-means-এর limitation কী?
+
+* K আগে নির্বাচন করতে হয়
+* Outlier-sensitive
+* Scaling-sensitive
+* গোলাকার/similar-size clusters ভালোভাবে ধরে
+* Initial center-এর ওপর result নির্ভর করতে পারে
+
+---
+
+# ICA Viva
+
+### 78. ICA-এর full form কী?
+
+Independent Component Analysis।
+
+### 79. ICA-এর উদ্দেশ্য কী?
+
+Observed mixtures থেকে statistically independent source signals উদ্ধার করা।
+
+### 80. Blind source separation কী?
+
+Original source এবং mixing process পুরোপুরি না জেনেও source signals আলাদা করা।
+
+### 81. Mixing equation কী?
+
+আপনার row-based code অনুযায়ী:
+
+$$
+X=SA
+$$
+
+### 82. PCA ও ICA-এর পার্থক্য কী?
+
+* PCA → uncorrelated components তৈরি করে
+* ICA → statistically independent components তৈরি করে
+
+Independence, uncorrelated হওয়ার চেয়ে শক্তিশালী condition।
+
+### 83. FastICA কী ব্যবহার করে?
+
+Non-Gaussianity maximize করে independent sources অনুমান করে।
+
+### 84. `logcosh` কী?
+
+FastICA-তে non-Gaussianity পরিমাপের একটি nonlinear function।
+
+### 85. ICA result-এর order বদলাতে পারে কেন?
+
+Permutation ambiguity-এর কারণে।
+
+### 86. Estimated signal উল্টো হতে পারে কেন?
+
+Sign ambiguity-এর কারণে।
+
+### 87. Amplitude পরিবর্তিত হতে পারে কেন?
+
+Scaling ambiguity-এর কারণে।
+
+### 88. ICA-এর প্রধান assumption কী?
+
+Source signals statistically independent এবং সাধারণত non-Gaussian হতে হবে।
+
+### 89. দুইটি mixture থেকে কয়টি source separate করা যায়?
+
+সাধারণভাবে দুইটি independent mixture থেকে সর্বোচ্চ দুইটি source।
+
+---
+
+# Sir-এর দেওয়া Code-এ সম্ভাব্য Errors
+
+## Assignment.R
+
+### Error 1: Seed blank
+
+ভুল:
+
+```r
+U0 <-
+set.seed(U0)
+```
+
+সঠিক:
+
+```r
+U0 <- 4112
+set.seed(U0)
+```
+
+### Error 2: Variable count ভুল
+
+Comment-এ 15, বাস্তবে 16।
+
+### Error 3: `Nfacs` blank
+
+```r
+Nfacs <- 5
+```
+
+### Error 4: `K.value` blank
+
+```r
+K.value <- optimal_k_sil
+```
+
+### Error 5: `view()` ছোট হাতের
+
+```r
+View(cluster_summary)
+```
+
+### Error 6: `KMO()` পাওয়া যাচ্ছে না
+
+```r
+psych::KMO(cor_matrix)
+```
+
+### Error 7: `cc()` পাওয়া যাচ্ছে না
+
+```r
+CCA::cc(X_vars, Y_vars)
+```
+
+### Error 8: `p.asym()` পাওয়া যাচ্ছে না
+
+```r
+CCP::p.asym(rho, n, p, q, tstat = "Wilks")
+```
+
+### Error 9: `xcoef`-কে loading লেখা হয়েছে
+
+এটি coefficient, actual loading নয়।
+
+### Error 10: PCA data দুইবার scaled
+
+এটি fatal error নয়, কিন্তু redundant।
+
+---
+
+## Problem_04.R সম্ভাব্য errors
+
+Package না থাকলে:
+
+```r
+install.packages("fastICA")
+library(fastICA)
+```
+
+`dev.off()` থেকে error এলে:
+
+```text
+cannot shut down device 1
+```
+
+লাইনটি বাদ দিন বা লিখুন:
+
+```r
+if (dev.cur() > 1) dev.off()
+```
+
+`mvrnorm()`-এর বদলে সহজভাবে ব্যবহার করা যায়:
+
+```r
+rnorm(1000, mean = 0, sd = sqrt(0.004))
+```
+
+কারণ `Sigma = 0.004` variance বোঝায়, SD নয়।
+
+---
+
+## Problem_05.R সম্ভাব্য errors
+
+File পাওয়া না গেলে:
+
+```text
+cannot open file
+```
+
+Working directory check করুন:
+
+```r
+getwd()
+```
+
+File exists কি না:
+
+```r
+file.exists("401/artificially_mixed1.wav")
+```
+
+Folder না থাকলে save হবে না:
+
+```r
+dir.create("401", showWarnings = FALSE)
+```
+
+দুই audio-এর sampling rate আলাদা হলে শুধু length equal করা যথেষ্ট নয়; resampling প্রয়োজন।
+
+---
+
+## Problem_06.R সম্ভাব্য errors
+
+CSV পাওয়া না গেলে:
+
+```r
+file.choose()
+```
+
+তারপর:
+
+```r
+pmaam.data <- read.csv(file.choose())
+```
+
+Missing values থাকলে:
+
+```r
+pmaam.data <- na.omit(pmaam.data)
+```
+
+Base R plot-এ:
+
+```r
+alpha = 0.6
+```
+
+সরাসরি কাজ নাও করতে পারে। সঠিকভাবে:
+
+```r
+col = adjustcolor("blue", alpha.f = 0.6)
+```
+
+# শেষ মুহূর্তের ১০টি Golden Rule
+
+1. PCA = data reduction
+2. FA = hidden factor detection
+3. CCA = two variable sets-এর relationship
+4. K-means = observations grouping
+5. ICA = mixed signal separation
+6. KMO \(>0.50\)
+7. Bartlett \(p<0.05\)
+8. `factanal()` sufficiency \(p>0.05\)
+9. Canonical significance \(p<0.05\)
+10. Loading/center interpret করতে absolute value, sign এবং variable meaning—তিনটিই দেখবেন।
